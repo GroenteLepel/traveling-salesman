@@ -16,6 +16,7 @@ class World:
                 range(self.n_cities)]
 
     def show(self):
+        plt.clf()
         for n, city in enumerate(self.cities):
             plt.scatter(city.x, city.y, label="City {}".format(n))
 
@@ -27,5 +28,5 @@ class World:
                 to_city = self.tour.tour[i+1]
             plt.plot([from_city.x, to_city.x], [from_city.y, to_city.y], c='b')
 
-        # plt.legend()
+        #plt.legend()
         plt.show()

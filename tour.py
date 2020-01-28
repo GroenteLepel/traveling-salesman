@@ -21,3 +21,8 @@ class Tour:
         return distance
 
     def swap_cities(self, i: int, j: int):
+        city1 = self.tour[i]
+        city2 = self.tour[j]
+        
+        self.tour[i] = city2
+        self.tour[j] = city1
