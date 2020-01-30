@@ -1,10 +1,11 @@
 from city import City
 from typing import List
+import copy
 
 
 class Tour:
     def __init__(self, cities: List[City]):
-        self.tour = cities
+        self.tour = copy.copy(cities)
         self.distance = self.get_distance()
 
     def get_distance(self):
