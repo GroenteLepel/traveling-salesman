@@ -1,5 +1,5 @@
 from world import World
-from optimiser import optimise
+import optimiser
 
 n_mc_samples = 50000
 init_temperature = 0.1
