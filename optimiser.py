@@ -13,7 +13,8 @@ def optimise(world: World):
 
 
 def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
-             init_temperature: float = -1, cooling_factor: float = 0.9):
+                init_temperature: float = -1, cooling_factor: float = 0.9,
+                show_steps: bool = False):
     if init_temperature < 0:
         init_temperature = world.n_cities / 8
     if n_mc_samples < 0:
@@ -24,7 +25,7 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
     swap_list = generate_swaplist(world.n_cities, neighbourhood)
     np.random.shuffle(swap_list)
 
-    print("=============")
+    print("==============")
     print("Starting simulated annealing with variables:")
     print(r"n_samples: {}, T_i: {}, f_c: {}, neighb.: {}".
           format(n_mc_samples,
@@ -32,6 +33,7 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                  cooling_factor,
                  neighbourhood))
     print("==============")
+    print("Temperature | Average sampled distance")
     new_sample_found = True
     while new_sample_found:
         new_sample_found = False
@@ -63,12 +65,22 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                     break
 
             distances[_] = world.tour.distance
+            diff = distances[_-1] - distances[_]
+            if diff > 0:
+                trend_str = "\/"
+            else:
+                trend_str = "/\\"
+            print("    {0:3.3f}               {1:3.3f} {2}"
+                  .format(temperature, distances[_], trend_str),
+                  end='\r')
 
-        # world.show(
-        #     r"$T$ = {0:.3f}, avg_dist = {1:.3f}".format(temperature,
-        #                                                 distances.mean())
-        # )
+        if show_steps:
+            world.show(
+                r"$T$ = {0:.3f}, avg_dist = {1:.3f}".format(temperature,
+                                                            distances.mean())
+            )
         temperature *= cooling_factor
+
     return world
 
 
