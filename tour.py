@@ -8,22 +8,38 @@ import copy
 class Tour:
     def __init__(self, cities: List[City]):
         self.tour = copy.deepcopy(cities)
+        self.distance_matrix = self._gen_distance_matrix()
         self.distance = self.get_distance()
 
-    def get_distance(self):
-        distance = 0
-        for i in range(len(self.tour)):
-            from_city = self.tour[i]
-            if i + 1 == len(self.tour):
-                destination_city = self.tour[0]
-            else:
-                destination_city = self.tour[i + 1]
+    def _gen_distance_matrix(self):
+        """
+        Generates a symmetric matrix containing the distance between city i and
+        city j at index [i][j], diagonal is zero.
+        """
+        n = len(self.tour)
+        matrix = np.zeros(shape=(n, n))
+        for i in range(n):
+            for j in range(i):
+                distance = self.tour[i].distance_to(self.tour[j])
+                matrix[i][j], matrix[j][i] = distance, distance
+        return matrix
 
-            distance += from_city.distance_to(destination_city)
+    def get_distance(self):
+        n = len(self.tour)
+        distance = 0
+        for i in range(n):
+            from_city = self.tour[i].label
+            if i + 1 == n:
+                to_city = self.tour[0].label
+            else:
+                to_city = self.tour[i + 1].label
+
+            distance += self.distance_matrix[from_city][to_city]
 
         return distance
 
     def calculate_connection_distance(self, at_index: int):
+        # Should be useless now we have distance matrix.
         if at_index == len(self.tour) - 1:
             return self.tour[at_index].distance_to(self.tour[at_index - 1]) + \
                    self.tour[at_index].distance_to(self.tour[0])
@@ -52,23 +68,25 @@ class Tour:
         else:
             slice_to_reverse = self.tour[from_city:to_city]
             self.tour[from_city:to_city] = slice_to_reverse.reverse()
-        pass
 
     def swap_cities(self, to_swap: List[int]):
-        cities = [City] * len(to_swap)
-        to_reduce, to_add = 0, 0
+        # list of cities which are going to swap
+        cities_to_swap = [City] * len(to_swap)
+        # # values to add and reduce from total distance
+        # to_reduce, to_add = 0, 0
         for _, swap_index in enumerate(to_swap):
-            cities[_] = self.tour[swap_index]
-            to_reduce += self.calculate_connection_distance(swap_index)
+            cities_to_swap[_] = self.tour[swap_index]
+            # to_reduce += self.calculate_connection_distance(swap_index)
 
-        back_city = cities[-1]
-        cities.pop()
-        cities.insert(0, back_city)
+        # shift all the cities down one spot as a swap action.
+        back_city = cities_to_swap[-1]
+        cities_to_swap.pop()
+        cities_to_swap.insert(0, back_city)
 
         for _, swap_index in enumerate(to_swap):
-            self.tour[swap_index] = cities[_]
+            self.tour[swap_index] = cities_to_swap[_]
 
-        for swap_index in to_swap:
-            to_add += self.calculate_connection_distance(swap_index)
+        # for swap_index in to_swap:
+        #     to_add += self.calculate_connection_distance(swap_index)
 
-        self.distance += to_add - to_reduce
+        self.distance = self.get_distance()
