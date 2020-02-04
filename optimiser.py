@@ -21,6 +21,7 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
         n_mc_samples = int(choose(world.n_cities, 2) / 2)
     temperature = init_temperature
 
+    old_distances = np.zeros(n_mc_samples)
     distances = np.zeros(n_mc_samples)
     swap_list = generate_swaplist(world.n_cities, neighbourhood)
     np.random.shuffle(swap_list)
@@ -65,20 +66,25 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                     break
 
             distances[_] = world.tour.distance
-            diff = distances[_-1] - distances[_]
-            if diff > 0:
-                trend_str = "\/"
-            else:
-                trend_str = "/\\"
-            print("    {0:3.3f}               {1:3.3f} {2}"
-                  .format(temperature, distances[_], trend_str),
-                  end='\r')
+
+        diff = old_distances.mean() - distances.mean()
+        if diff > 0:
+            trend = "\\/"
+        elif diff == 0:
+            trend = "--"
+        else:
+            trend = "/\\"
+        print("    {0:3.3f}               {1:3.3f} {2}"
+              .format(temperature, distances.mean(), trend),
+              end='\r')
 
         if show_steps:
             world.show(
                 r"$T$ = {0:.3f}, avg_dist = {1:.3f}".format(temperature,
                                                             distances.mean())
             )
+
+        old_distances = copy.copy(distances)
         temperature *= cooling_factor
 
     return world
