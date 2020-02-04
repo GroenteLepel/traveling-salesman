@@ -2,9 +2,10 @@ import numpy as np
 
 
 class City:
-    def __init__(self, x, y):
+    def __init__(self, x: float, y: float, label: int):
         self.x = x
         self.y = y
+        self.label = label
 
     def distance_to(self, destination_city):
         dx = np.abs(self.x - destination_city.x)

@@ -19,7 +19,7 @@ class World:
     def show(self):
         plt.clf()
         for n, city in enumerate(self.cities):
-            plt.scatter(city.x, city.y, label="City {}".format(n))
+            plt.scatter(city.x, city.y, label="City {}".format(city.label))
 
         for i in range(self.n_cities):
             from_city = self.tour.tour[i]
