@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from city import City
 from tour import Tour
+from rcarry.generator import rcarry
 
 
 class World:
@@ -12,7 +13,7 @@ class World:
         self.tour = Tour(self.cities)
 
     def _gen_cities(self):
-        return [City(np.random.rand(), np.random.rand()) for _ in
+        return [City(rcarry.generate(), rcarry.generate(), _) for _ in
                 range(self.n_cities)]
 
     def show(self):
