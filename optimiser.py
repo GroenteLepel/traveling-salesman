@@ -36,16 +36,18 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
     print("==============")
     print("Temperature | Average sampled distance")
     new_sample_found = True
+    epochs = 0
     while new_sample_found:
         new_sample_found = False
         swap_list_counter = 0
-        for _ in range(n_mc_samples):
+        for sample_number in range(n_mc_samples):
             current_distance = world.tour.distance
 
-            # swap = np.random.choice(world.n_cities, size=neighbourhood, replace=False)
             swap = swap_list[swap_list_counter]
 
             candidate_world = copy.deepcopy(world)
+#            swap = np.random.choice(world.n_cities, size=neighbourhood, replace=False)
+            
             candidate_world.tour.swap_cities(swap)
             new_distance = candidate_world.tour.distance
 
@@ -65,7 +67,29 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                     print("Tried all possible combinations.")
                     break
 
-            distances[_] = world.tour.distance
+            distances[sample_number] = world.tour.distance
+        
+        if not new_sample_found:
+            for from_city in range(world.n_cities):
+                if from_city == world.n_cities-1:
+                    excl_city_front = 0
+                else:
+                    excl_city_front = from_city + 1
+                if from_city == 0:
+                    excl_city_back = world.n_cities-1
+                else:
+                    excl_city_back = from_city - 1
+                excl_list = [from_city, excl_city_front, excl_city_back]
+                to_city_choices = [x for x in range(world.n_cities) if x not in excl_list]
+                
+                for to_city in to_city_choices:
+                    current_distance = world.tour.distance
+                    candidate_world = copy.deepcopy(world)
+                    candidate_world.tour.reverse_direction(from_city, to_city)
+                
+                    if accept(current_distance, new_distance, temperature):
+                        new_sample_found = True
+                        world = copy.deepcopy(candidate_world)
 
         diff = old_distances.mean() - distances.mean()
         if diff > 0:
@@ -74,18 +98,16 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
             trend = "--"
         else:
             trend = "/\\"
-        print("    {0:3.3f}               {1:3.3f} {2}"
-              .format(temperature, distances.mean(), trend),
-              end='\r')
+        print("    {0:3.3f}               {1:3.3f} {2}".format(temperature, distances.mean(), trend))
 
         if show_steps:
-            world.show(
-                r"$T$ = {0:.3f}, avg_dist = {1:.3f}".format(temperature,
-                                                            distances.mean())
-            )
+            world.show()
 
         old_distances = copy.copy(distances)
         temperature *= cooling_factor
+#        tour_cities = [city.label for city in world.tour.tour]
+#        print(tour_cities)
+        epochs += 1
 
     return world
 

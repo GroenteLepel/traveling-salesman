@@ -1,10 +1,11 @@
 from world import World
 import optimiser
 
-n_mc_samples = 50000
-init_temperature = 0.1
-cooling_factor = 0.8
-
-my_world = World(10)
-optimised_world = optimise(my_world, n_mc_samples, init_temperature, cooling_factor)
-optimised_world.show()
+my_world = World(30)
+optimised_world = optimiser.sa_solution(world = my_world,  
+                                        n_mc_samples = 100, 
+                                        neighbourhood = 2,
+                                        init_temperature = -1, 
+                                        cooling_factor = 0.9,
+                                        show_steps = False)
+optimised_world.show(title = '1')

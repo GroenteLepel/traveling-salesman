@@ -16,7 +16,7 @@ class World:
         return [City(rcarry.generate(), rcarry.generate(), _) for _ in
                 range(self.n_cities)]
 
-    def show(self):
+    def show(self, title=None):
         plt.clf()
         for n, city in enumerate(self.cities):
             plt.scatter(city.x, city.y, label="City {}".format(city.label))
@@ -29,5 +29,7 @@ class World:
                 to_city = self.tour.tour[i+1]
             plt.plot([from_city.x, to_city.x], [from_city.y, to_city.y], c='b')
 
-        #plt.legend()
+        plt.legend()
+        if title != None:
+            plt.savefig('../figures/{0:s}.png'.format(title))
         plt.show()

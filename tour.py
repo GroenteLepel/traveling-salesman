@@ -61,21 +61,23 @@ class Tour:
         if to_city < from_city:
             double_tour = self.tour + self.tour
             slice_to_reverse = double_tour[from_city:len(self.tour) + to_city]
+            slice_to_reverse.reverse()
             double_tour[from_city:len(self.tour) + to_city] = \
-                slice_to_reverse.reverse()
+                slice_to_reverse
             new_tour = double_tour[from_city:len(self.tour) + from_city]
             self.tour = new_tour
         else:
             slice_to_reverse = self.tour[from_city:to_city]
-            self.tour[from_city:to_city] = slice_to_reverse.reverse()
+            slice_to_reverse.reverse()
+            self.tour[from_city:to_city] = slice_to_reverse
 
     def swap_cities(self, to_swap: List[int]):
         # list of cities which are going to swap
         cities_to_swap = [City] * len(to_swap)
         # # values to add and reduce from total distance
         # to_reduce, to_add = 0, 0
-        for _, swap_index in enumerate(to_swap):
-            cities_to_swap[_] = self.tour[swap_index]
+        for i, swap_index in enumerate(to_swap):
+            cities_to_swap[i] = self.tour[swap_index]
             # to_reduce += self.calculate_connection_distance(swap_index)
 
         # shift all the cities down one spot as a swap action.
@@ -83,8 +85,8 @@ class Tour:
         cities_to_swap.pop()
         cities_to_swap.insert(0, back_city)
 
-        for _, swap_index in enumerate(to_swap):
-            self.tour[swap_index] = cities_to_swap[_]
+        for i, swap_index in enumerate(to_swap):
+            self.tour[swap_index] = cities_to_swap[i]
 
         # for swap_index in to_swap:
         #     to_add += self.calculate_connection_distance(swap_index)
