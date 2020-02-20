@@ -70,6 +70,8 @@ class Tour:
             slice_to_reverse = self.tour[from_city:to_city]
             slice_to_reverse.reverse()
             self.tour[from_city:to_city] = slice_to_reverse
+        
+        self.distance = self.get_distance()
 
     def swap_cities(self, to_swap: List[int]):
         # list of cities which are going to swap
