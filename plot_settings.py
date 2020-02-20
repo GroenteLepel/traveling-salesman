@@ -7,9 +7,13 @@ Created on Thu Feb 20 14:54:41 2020
 """
 
 # plotjes:
-n_cities = 50
-# default settings
 
+# default settings
+cooling_factor = 0.92
+n_cities = 50
+init_temp = 1.0
+border = 0.5
+mc_samples = 300
 
 def plot():
     temperature vs epoch_average_distance (voor een bepaalde n_cities)

@@ -9,8 +9,16 @@ from world import World
 
 def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                 init_temperature: float = -1, cooling_factor: float = 0.9, rising_mc: bool = True,
-                show_steps: bool = False):
+                show_steps: bool = False, save_final_step: bool = False):
+    # Initial distance save for first calculation of diff_average
+    init_distance = world.tour.distance
     
+    # Initialise lists to use for plotting later
+    temperature_list = []
+    avg_distance_list = []
+    stdev_distance_list = []
+    
+    # Initialise the multiplication factor for n_mc_samples
     if rising_mc:
         rising_mc_factor = cooling_factor**-1
     else:
@@ -47,7 +55,6 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
     new_sample_found = True
     epochs = 0
     border = 0.5  # probability of choosing the swap_cities() method
-    epoch_average_distance = world.tour.distance
     while new_sample_found:
         new_sample_found = False
         
@@ -55,10 +62,7 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
         swap_list_counter = 0
         reverse_list_counter = 0
         
-        # Save the average distance of the old epoch
-        old_epoch_average_distance = epoch_average_distance
-        
-        sum_epoch_distances = 0
+        epoch_distances = np.zeros(n_mc_samples)
         for sample_number in range(n_mc_samples):
             current_distance = world.tour.distance  # save distance to compare with new trial state
             
@@ -107,20 +111,24 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
                         print("Tried all possible reverse directions.")
                         border = 2
                 
-            
-            sum_epoch_distances += world.tour.distance
+            epoch_distances[sample_number] = world.tour.distance
 
-        epoch_average_distance = float(sum_epoch_distances) / n_mc_samples
+        temperature_list.append(temperature)
+        avg_distance_list.append(np.average(epoch_distances))
+        stdev_distance_list.append(np.std(epoch_distances))
 
         # Calculate the difference before and after the epoch
-        diff_average = epoch_average_distance - old_epoch_average_distance
+        if epochs == 0:
+            diff_average = avg_distance_list[-1] - init_distance
+        else:
+            diff_average = avg_distance_list[-1] - avg_distance_list[-2]
         if diff_average < 0:
             trend = "\\/"
         elif diff_average == 0:
             trend = "--"
         else:
             trend = "/\\"
-        print("{0:3.3f}\t\t{1:d}\t\t{2:3.3f}  {3}".format(temperature, n_mc_samples, epoch_average_distance, trend))
+        print("{0:3.3f}\t\t{1:d}\t\t{2:3.3f}  {3}".format(temperature, n_mc_samples, avg_distance_list[-1], trend))
 
         if show_steps:
             world.show()
@@ -136,6 +144,9 @@ def sa_solution(world: World, n_mc_samples: int = -1, neighbourhood: int = 2,
 #        tour_cities = [city.label for city in world.tour.tour]
 #        print(tour_cities)
         epochs += 1
+        
+    if save_final_step:
+        world.show_withplots(temperature_list, avg_distance_list, stdev_distance_list)
 
     return world
 
