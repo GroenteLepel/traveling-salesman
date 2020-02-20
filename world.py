@@ -29,7 +29,7 @@ class World:
                 to_city = self.tour.tour[i+1]
             plt.plot([from_city.x, to_city.x], [from_city.y, to_city.y], c='b')
 
-        plt.legend()
+        #plt.legend()
         if title != None:
             plt.savefig('../figures/{0:s}.png'.format(title))
         plt.show()
