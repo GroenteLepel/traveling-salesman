@@ -65,19 +65,18 @@ class World:
             else:
                 to_city = self.tour.tour[i + 1]
             world_ax.plot([from_city.x, to_city.x], [from_city.y, to_city.y], color='black')
-        world_ax.set_title("{0:5.3f} $D_{min}$".format(self.tour.distance / minimal_distance))
+        world_ax.set_title("{0:5.3f} $D_{{min}}$".format(self.tour.distance / minimal_distance))
         world_ax.set_xticklabels([])
         world_ax.set_yticklabels([])
         world_ax.xaxis.set_visible(False)
         world_ax.yaxis.set_visible(False)
 
-        temperature_list.reverse()
-
         avgdist_ax.plot(temperature_list, avg_distance_list, color='black')
         avgdist_ax.plot(temperature_list, [minimal_distance] * len(temperature_list), linestyle='dashed', color='black')
         # avgdist_ax.set_title('$AVG_{dist}$ vs temperature')
         avgdist_ax.set_xscale('log')
-        avgdist_ax.set_xticks([1e1, 1e0, 1e-1])
+        avgdist_ax.set_xticks([1e1, 1e0, 1e-1, 1e-2])
+        avgdist_ax.set_xlim(avgdist_ax.get_xlim()[::-1])
         # avgdist_ax.set_xlim(10,1e-2)
         # avgdist_ax.set_ylim(5,30)
         avgdist_ax.set_xlabel('Temperature')
@@ -87,7 +86,8 @@ class World:
         stdevdist_ax.plot(temperature_list, [0.0] * len(temperature_list), linestyle='dashed', color='black')
         # stdevdist_ax.set_title('$\sigma_{dist}$ vs temperature')
         stdevdist_ax.set_xscale('log')
-        stdevdist_ax.set_xticks([1e1, 1e0, 1e-1])
+        stdevdist_ax.set_xticks([1e1, 1e0, 1e-1, 1e-2])
+        stdevdist_ax.set_xlim(stdevdist_ax.get_xlim()[::-1])
         # stdevdist_ax.set_xlim(10,1e-2)
         # stdevdist_ax.set_ylim(0,5)
         stdevdist_ax.set_xlabel('Temperature')
