@@ -12,6 +12,7 @@ def sa_solution(world: World,
                 neighbourhood: int = 2,
                 init_temperature: float = -1,
                 cooling_factor: float = 0.9,
+                init_swap_probability: float = 0.5,
                 rising_mc: bool = True,
                 show_steps: bool = False,
                 title = None):
@@ -110,7 +111,7 @@ def sa_solution(world: World,
                 
                 # Reset border
                 #
-                border = 0.5
+                swap_probability = init_swap_probability
             else:
                 # If all swaps or reverse directions are done, only the other
                 # method is used in the future.
@@ -156,19 +157,23 @@ def sa_solution(world: World,
         # Update temperature and the amount of MC samples
         #
         temperature *= cooling_factor
-        if temperature < 0.25:
-            n_mc_samples = int(rising_mc_factor * n_mc_samples)
-        if n_mc_samples > max_n_mc_samples:
-            n_mc_samples = max_n_mc_samples
-            temperature = 0
+
+        if rising_mc:
+            if temperature < 0.25:
+                n_mc_samples = int(rising_mc_factor * n_mc_samples)
+            if n_mc_samples > max_n_mc_samples:
+                n_mc_samples = max_n_mc_samples
+                temperature = 0
 #        tour_cities = [city.label for city in world.tour.tour]
 #        print(tour_cities)
         epochs += 1
-        
+
+    final_distance = epoch_distances[-1]
+
     if title:
         world.show_withplots(temperature_list, avg_distance_list, stdev_distance_list, title=title)
 
-    return world
+    return world, final_distance, [temperature_list, avg_distance_list, stdev_distance_list]
 
 
 def choose(n, k):
@@ -210,7 +215,7 @@ def generate_reverselist(n_cities: int):
 def accept(old_sample: float, candidate_sample: float, temperature: float):
     diff = candidate_sample - old_sample
     if temperature == 0:
-        a = 0
+        a = 1 if diff <= 0 else 0
     else:
         a = np.exp(- diff / temperature)
 
