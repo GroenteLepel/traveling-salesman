@@ -40,7 +40,7 @@ def sa_solution(world: World,
     if n_mc_samples < 0:
         n_mc_samples = int(choose(world.n_cities, 2) / 2)
     temperature = init_temperature
-
+    
     # Generate shuffled swap and reverse lists
     #
     swap_list = generate_swaplist(world.n_cities, neighbourhood)
@@ -52,41 +52,46 @@ def sa_solution(world: World,
     #
     max_n_mc_samples = len(swap_list) + len(reverse_list)
 
-    # Print the config for verbosity
+    # Aesthetics
     #
-    print_config(n_mc_samples, init_temperature, cooling_factor, neighbourhood)
-
+    print("==============")
+    print("Starting simulated annealing with variables:")
+    print(r"n_samples: {}, T_i: {}, f_c: {}, neighb.: {}".
+          format(n_mc_samples,
+                 init_temperature,
+                 cooling_factor,
+                 neighbourhood))
+    print("==============")
+    print("Temperature | # MC samples | Average epoch distance")
+            
     new_sample_found = True
     epochs = 0
-    border = 0.5  # probability of choosing the swap_cities() method
-
+    swap_probability = init_swap_probability
     while new_sample_found:
         new_sample_found = False
-
+        
         # Go to the start of the lists since a new sample has just been found
         #
         swap_list_counter = 0
         reverse_list_counter = 0
-
+        
         epoch_distances = np.zeros(n_mc_samples)
         for sample_number in range(n_mc_samples):
             current_distance = world.tour.distance  # save distance to compare with new trial state
-
+            
             candidate_world = copy.deepcopy(world)
 
             # Choose between two methods for finding a new trial state
             #
-            if np.random.rand() < border:
-                # swap cities
+            if np.random.rand() < swap_probability:
                 swap = swap_list[swap_list_counter]
                 candidate_world.tour.swap_cities(swap)
                 swap_list_counter += 1
             else:
-                # reverse direction
-                [from_city, to_city] = reverse_list[reverse_list_counter]
+                [from_city,to_city] = reverse_list[reverse_list_counter]
                 candidate_world.tour.reverse_direction(from_city, to_city)
                 reverse_list_counter += 1
-
+                
             new_distance = candidate_world.tour.distance
 
             # Check whether to acccept the new state
@@ -94,7 +99,7 @@ def sa_solution(world: World,
             if accept(current_distance, new_distance, temperature):
                 new_sample_found = True
                 world = copy.deepcopy(candidate_world)
-
+                
                 # Shuffle the lists and start all over again since previously
                 # skipped trials may now result in a lower energy.
                 #
@@ -102,7 +107,7 @@ def sa_solution(world: World,
                 np.random.shuffle(reverse_list)
                 swap_list_counter = 0
                 reverse_list_counter = 0
-
+                
                 # Reset border
                 #
                 border = 0.5
@@ -112,18 +117,18 @@ def sa_solution(world: World,
                 #
                 if swap_list_counter == len(swap_list) and reverse_list_counter == len(reverse_list):
                     print("Tried all possible swaps and reverses.")
-                    border = 0.5  # this does not matter since the loop will be stopped
-
+                    swap_probability = init_swap_probability  # this does not matter since the loop will be stopped
+                    
                 elif swap_list_counter == len(swap_list):
-                    if border != -1:
-                        print("Tried all possible swap combinations.")
-                        border = -1
-
+                    if swap_probability != -1:
+                        print("\nTried all possible swap combinations.")
+                        swap_probability = -1
+                            
                 elif reverse_list_counter == len(reverse_list):
-                    if border != 2:
-                        print("Tried all possible reverse directions.")
-                        border = 2
-
+                    if swap_probability != 2:
+                        print("\nTried all possible reverse directions.")
+                        swap_probability = 2
+                
             epoch_distances[sample_number] = world.tour.distance
 
         temperature_list.append(temperature)
@@ -164,21 +169,6 @@ def sa_solution(world: World,
         world.show_withplots(temperature_list, avg_distance_list, stdev_distance_list, title=title)
 
     return world
-
-
-def print_config(n_mc_samples, init_temperature, cooling_factor, neighbourhood):
-    """
-    Prints the parameter config for simulated annealing for verbosity.
-    """
-    print("==============")
-    print("Starting simulated annealing with variables:")
-    print("n_samples: {}, T_i: {}, f_c: {}, neighb.: {}".
-          format(n_mc_samples,
-                 init_temperature,
-                 cooling_factor,
-                 neighbourhood))
-    print("==============")
-    print("Temperature | # MC samples | Average epoch distance")
 
 
 def choose(n, k):
