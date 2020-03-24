@@ -163,7 +163,6 @@ def sa_solution(world: World,
                 n_mc_samples = int(rising_mc_factor * n_mc_samples)
             if n_mc_samples > max_n_mc_samples:
                 n_mc_samples = max_n_mc_samples
-                temperature = 0
 #        tour_cities = [city.label for city in world.tour.tour]
 #        print(tour_cities)
         epochs += 1
