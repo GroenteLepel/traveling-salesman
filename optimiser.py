@@ -15,8 +15,7 @@ def sa_solution(world: World,
                 init_swap_probability: float = 0.5,
                 rising_mc: bool = True,
                 show_steps: bool = False,
-                title = None):
-
+                title=None):
     # Initial distance save for first calculation of diff_average
     #
     init_distance = world.tour.distance
@@ -121,14 +120,14 @@ def sa_solution(world: World,
                     swap_probability = init_swap_probability  # this does not matter since the loop will be stopped
                     
                 elif swap_list_counter == len(swap_list):
-                    if swap_probability != -1:
+                    if swap_probability != 0:
                         print("\nTried all possible swap combinations.")
-                        swap_probability = -1
+                        swap_probability = 0
                             
                 elif reverse_list_counter == len(reverse_list):
-                    if swap_probability != 2:
+                    if swap_probability != 1:
                         print("\nTried all possible reverse directions.")
-                        swap_probability = 2
+                        swap_probability = 1
                 
             epoch_distances[sample_number] = world.tour.distance
 
